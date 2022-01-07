@@ -1,0 +1,115 @@
+ /*	HISTORY
+ * 3.0 vom xx xx xx (11.06.08 ??)
+ 
+ * 	- Einbindung des JPEGPresenters für Diashows
+ 	- bei OutOfMemory ImagePanel ohne Buffering verwenden oder nur noch Fkt. ohne 
+ 		Vorb. next Image ansteuern
+	2.0.8 vom xx.08.08:
+		- Bugfix: JPG anstatt jpg - bei finden okay beim copy noch todo
+	    + erstes (Pos1) letztes (end) Bild zeigen
+		- impl. SearchPanel: searchOnlyKeyWords, searchAllTexts
+		+ bugfix im SearchPanel werden nun keywords wirklich angezeigt
+		+ bugfix bei ikonifizierten InfoPanels: .setState(Frame.NORMAL);
+			zum groß machen
+	2.0.7 vom 17.08.08:
+		+ mit Kamera-InfoPanel
+		- TODO Serienbilder 100b6650.jpg anders einzuordnen
+	2.0.6 vom 13.08.08:
+		+ bugfix UTF-8 als Text-Dateien-Format vorgeschrieben
+ 	2.0.5 vom 28.07.08
+ 		+	Erweiterung für Achim, frei wählbarer Feldname im JPEG-Bild
+ 
+ *	2.0.3 vom 10.03.08
+ *		um es wieder unter meinem windows lauffähig zu machen
+ *	2.0.2 vom 17.02.08
+ *		imageToShow flushed vor neuem zeigen, das sind alles Versuche, OutOfMemory-Errors
+ *		aus der Bibo-Klasse ImageFetcher vorzubeugen ... (Version immer noch beta)
+ *	2.0.1 vom 26.01.08
+ *	+ asynchrones Laden von Bildern im Hintergrund
+ *
+ *	1.6 vom 20.01.08
+ *	+	BugFix: lässt sich nicht beenden ohne Bild zu laden
+ *	+	in AchimsManipulationsPanel rekursive Suche gelöscht und Datumsarithmetik hinzu
+ *		alles in Menus impl. 
+ *	+	shift BildUp/Down springt 10 Bilder (anderes icon bei Shift noch nicht erforderlich??)
+ *	1.5 vom 17.06.07
+ *		für Achim im Datenbasis-Panel umbennen der Dateinamen in Aufnahmedatum
+ *	1.4 vom 22.04.2007
+ *		+	Mehrfach-Aktionen (kop. aller Bilder gleicher Kategorie impl. im SearchPanel)
+ *		+	letztes Bild der letzten Sitzung wird versucht bei nächster Sitzung zu laden
+ *		+	Filename-Zuordnung wieder korrigiert und alte Datenbasis korrigiert 09.04.07
+ *			Kategorien 	ALT: _keywords.txt		NEU:.txt 
+ *			Caption 		ALT: .txt							NEU:_caption.txt
+ *		FileName-Änderung im ManipulationPanel möglich (auch Vorbild für weitere 
+ *		Manipulationen -> sollte als weitere Menupunkte impl. werden und Klasse kopieren
+ *		und abwandeln
+ * 	Dateien (Texte) auch bei Listenanzeige schreiben (bisher wird nur bei normalem
+ * 	Bilder weitergehen Text korrekt gespeichert), 
+ *
+ *	1.3 vom 04.04.2007
+ *	+ Hilfemenu dazu mit Textdatei im jar
+ *	+ bei Ende Suche statt DONE Anzahl gefundener Enträge ausgeben
+ *		Bsp.: "Done. 16 Occurences found."
+ *
+ *	1.2 vom 09.12.2006
+ *	+	KaBa läuft auch ohne ini schreiben
+ *	+	1. sucht ini im Home-Pfad / Kaba / kaba.ini
+ *	+	2. sucht ini im aktuellen Verzeichnis
+ *	+	3. fragt ob ohne ini gearbeitet werden soll, wenn nein neue ini im Home-Pfad
+ *
+ *	1.1 vom 09.06.2006
+ *	+ Caption und Keywords tauschen (nur Beschriftungen)
+ *	+ nächstes Blid ShortCut: Seite runter
+ *
+ *	1.0 ab hier Dani (Features später wieder herausgenommen)
+ *	+ Bildname in Titelzeile oben
+ *	+ und an erster Stelle um in Programmübersicht möglichst das aktuell
+ *		bearbeitete Bild zu sehen
+ *
+ *	++++++++++++++++++++++++++++++++++++++++++++ 
+ * 		ab hier JCap Abwandlungen von Dani für KaBA
+ *  ++++++++++++++++++++++++++++++++++++++++++++
+ * 
+1.0
+- File list and/or thumbnail view and/or folder tree
+
+0.9
+- Slideshow (full-screen with captions, etc.)
+- Option panel (and options)
+
+0.8
++ Add search
++ Button to apply current keywords to all images
+	(prompt, are you sure?).  No accelerator.
++ Drag and drop (0.7.5)
+- Handle java.lang.OutOfMemoryError when switching images too quickly
+- Save position of toolbar
+- A dialog that allows the user to rename all of the images in the current folder
+	based on the file modification date, EXIF picture date, or other data.  It should
+	also rename associated .txt files so that the categorization data is not lost.
+
+0.7.6
++ Fixed bug where the "The JPEG image could not be decoded." message appeared
+	when viewing non-JPEG images
++ Fixed bug with drag and drop where the dropped folder would not be remembered
+	if the app was closed after the folder was dropped.
++ Code cleanup
+
+0.7.1
++ Move EXIF data into a JTable
++ Add description and keyword text areas with easy keyboard navigation between them
++ Clear exif, folder, image after going to an empty folder
++ Add menu
++ Change folder name to input box
++ Fix annoying newline bug when loading/saving text data
+
+0.7
++ Add JLabel("loading...") while image is loading
++ Set native look and feel
++ Set window icon
++ Button to show full-size
++ Sort image list by name
++ Next without comment button
+
+++++++++++++++++++++++++++++++++++++++++++++
+*/
