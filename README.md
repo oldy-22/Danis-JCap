@@ -19,6 +19,7 @@ Damit man in dem Portal dann anhand der Bild-Dateien zB weiß, welche Bilder 2x 
 Eigentlich hatte die den DIalog für einen Freund konzipiert, der nach einem Zeltlager verschiedene Kameras mit verschiedenen (auch falsch eingestellten) Datums und Uhrzeiten in einen chronologischen Ablauf bringen wollte. Also das geht auch damit.
 
 Weiterhin kann man Stories in das große Feld schreiben, Zeiletrenner ist hier zB das "doppelte Leerzeichen", die danach wie in einem Film auf die Bilder projiziert werden (und zeitlich hintereinander umgebrochen werden an den doppelten Leerzeichen), um diese zB bei einer Party ablaufen zu lassen mit Hintergrundinfos in den Texten: "Hier lacht der Opa über die ersten Laute von Mia..."
+Die Daten für die Zielverzeichnis-Dateien werden aus den exif-Daten der Bilder extrahiert (nicht aus den source Dateinamen).
 
 Weil das Presenter-Programm diashow nicht alle Klassen benötigt (und auch keine Oberfläche besitzt), habe ich diese Klassen in dem 2. Ordner diashow zusammengefasst als zweites unabhängig vom kaba lauffähiges Programm (viele Klassen sind aber ähnlich). Mann kann die Bilder sowohl mit den Klassen in ein jar packen (in das Verzeichnis images) wenn man es als eine Datei über das Internet versenden will oder das diashow Programm (ohne Bilder drin) in dem Bilderverzeichnis starten und dann nimmt es alle Bilder, die es vorfindet.
 
