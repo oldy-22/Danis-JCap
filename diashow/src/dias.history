@@ -1,0 +1,63 @@
+Version 
+2.2 - 23.9.21
+   o mit Mousewheel zoomen bei Bildern über 500kB
+2.1 - 12.09.21
+	e Wartezeiten korrigiert wenn gleiches Bild bleibt (mit weniger BildAnschauZeit
+	e Hilfetext mehr quadratisch formatiert
+	e schönen play Pfeil rechts unten
+	e endlessLoop & Mausbedienung impl.
+2.0 - 13.06.21: 
+   e TODOs - Das Bild muss man ja nur lange anschauen, wenn es neu ist, 
+   		daher runter mit dem Wert wenn nur ts.stepper 
+   o TODO Bildschirm 1 oder 2 wählbar machen (zB 2. BS)
+ *   e  Zeit für Bild anschauen und Text addieren (+ verlängern ...)
+ * 1.0 - 31.12.11:
+ *  + Berechnung Schatten mit Faktor aus der BS-Auflösung
+ *  + exif Infos auch im jar ging plötzlich - nur Comments bei JPegDataReader Z65 gelöscht
+ *  + bugfix: JAR braucht / anstatt File.separator (ImageStepper Z175)
+ * 0.6 - 25.02.10:
+ *	+ Rekusität begrenzt auf max=1 (wegen /images) in ImageStepper 
+ *	- Internet-Tauglichkeit über URL herstellen
+ * 0.5 - 12.01.10:
+ *	+ Bilder immer noch ungeordnet, Fehler bei _&b löschen gefunden
+ *	+ Schrift von Description und Caption wird wegen Lesbarkeit mit Schatten gezeichnet
+ *	+ HILFE impl. (mögliche Bedieneraktionen etc.)
+ *	- im JAR keine FotoInfo und Datums-Darstellung aufgrund Fehler in 
+ *		JpegMetadataReader Zeile 268 
+ * 0.4 - 18.08.08:
+ *	- Kamera-ProgrammInfo in BildInfo
+ *	+ BildInfo: keine Zeichen, wenn keine Ausgabe möglich, Ausgabe korrigieren
+ *	+ geordnete picture-Liste (in ImageStepper) verwenden anstatt ungeordneter, benötigt für
+ *		ungeordnete Verzeichnisse und Serienbild (100b0001.jpg anstatt 100_0001.jpg) 
+ *	+ Pos1 / End springen zum Anfang / Ende der Präsentation
+ *	+ Dateiname hinter Seitenzahl
+ * 0.3 - 17.08.08:
+ *	+ Datum und Zeit in Präsentation anzeigen (ebenfalls BildInfos)
+ *	+ Bildernummern und Texte und Bilder ausblendbar machen z.B. mit Taste-[t]
+ *	+ Bildnummern können im Dia angezeigt werden
+ *	+ SHIFT + PgDn/PgUp geht 10-er weise vor oder zurück 
+ * 0.2 - 13.08.08:
+ * 	+ bugfix mit UTF-8 Schrift für Umlaute in allen DOSystemen okay
+ * 0.1: erste Version
+ * todos = - / erl. = +
+ *	+ geordnete Liste verwenden anstatt anderer, kann es Probleme mit ungeordneten 
+ *		Verzeichnissen geben?
+ *	+ wenn Konstruktor ohne Argument und keine Bilder im jar -> suche im/unter akt. Verz.
+ *	- Sichtbarkeit der Schrift verbessern entw. mit Farbwahl oder besser automatisch
+ *	- Schleifenablauf mit sleep
+ *	- Mausbedienung links: vorwärts
+ *	- Mausbedienung rechts: PopUp-Menu
+ *	- ratios und Bild-Mittenpunkte ggf. korrigieren auch für Hochkant-Fotos
+ *	- ggf. BufferedImagePanel
+ *	- if textLength - Berechnung aus MultiLineLabel
+ *	- Fenster definieren ermöglichen für Ausschnittsdarstellung, #200,200#400,400
+ *	(- komprimieren von Bilder auf Web-/ BS-Größe im Batchmode
+ *	(- verkleinern und vergrößern vom Bild bei Präsentation (+/-)
+ *	(- Pfeile / kreise an bestimmte Positionen im Bild mit Texten zur Hevorhebung  
+ *
+ *	KABA:
+ *	- tooltip in Kaba im Desciption-Text: z.B. Trennung mit Doppel-Leerzeichen
+ *	- ggf. extra Präsi-TextFeld neben Description
+ *	- bedienen mit rechter Mautaste, linke Maustaste steppt weiter
+ *	- TODO für Heike: Datum in Bild schreiben vor drucken / papern
+ *
