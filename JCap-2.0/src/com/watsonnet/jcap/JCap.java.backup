@@ -1,0 +1,555 @@
+package com.watsonnet;
+
+// java:
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.net.URL;
+
+// swing:
+import javax.swing.*;
+import javax.swing.event.*;
+
+// exif
+import com.drew.metadata.*;
+import com.drew.imaging.jpeg.*;
+import com.drew.lang.*;
+
+// watsonnet
+import com.watsonnet.GUI.*;
+
+/*
+TODO:
+
+0.7
+- Work out the image caching thing
+- Add JLabel("loading...") while image is loading
+- Save position of toolbar
+- Button to show full-size
+
+0.8
+- Add search
+
+0.9
+- Add slideshow
+- Add option panel (.txt or .xml; window style)
+- Multiple textboxes
+    first one always generates (filename.txt)
+    second generates (filename.0002.txt)
+    third goes in (filename.0003.txt)
+    etc.
+*/
+
+public class JCap {
+	public static final String APP_TITLE = "JCap";
+	public static final String APP_VERSION = "0.6";
+	
+	private static final String INI_FILE = "jcap.ini";
+	
+	private Properties prop = new Properties();
+	
+	private static final int MODE_NEXT = 0;
+	private static final int MODE_PREV = 1;
+	private static final int MODE_BOTH = 2;
+	
+	private File[] images;
+	private Image nextImage;
+	private Image prevImage;
+	private int imageIndex = 0;
+	
+	JFrame frame = new JFrame(APP_TITLE + " " + APP_VERSION);
+	
+	JPanel panelMain = new JPanel();
+	JPanel panelTop = new JPanel(new BorderLayout());
+	JPanel panelBottom = new JPanel(new BorderLayout());
+	
+	JToolBar panelToolbarMain = new JToolBar();
+	JButton btnChooser = new JButton();
+	JButton btnNext = new JButton();
+	JButton btnPrev = new JButton();
+	JButton btnExif = new JButton();
+	
+	JToolBar panelToolbarText = new JToolBar();
+	
+	JPanel panelExif = new JPanel(new BorderLayout());
+	JTextArea textExif = new JTextArea();
+	JScrollPane scrollExif = new JScrollPane(textExif);
+	
+	JPanel panelImageInfo = new JPanel(new BorderLayout());
+	ImagePanel panelImage = new ImagePanel();
+	JLabel labelFilename = new JLabel();
+	
+	JTextArea textComment = new JTextArea();
+	JScrollPane scrollComment = new JScrollPane(textComment);
+	
+	JSplitPane splitComment;
+	JSplitPane splitImageExif;
+	
+	// constructor
+	public JCap() {
+		/*
+		+---------------------------+
+		| toolbar                   |
+		+-------------+-------------+
+		|             |             |
+		|   image     |    exif     |
+		|             |             |
+		|             |             |
+		+-------------+-------------+
+		| comment text area         |
+		|                           |
+		+---------------------------+
+		*/
+		
+		// load ini file
+		loadIni();
+		
+		// Main panel
+		panelMain.setLayout(new BoxLayout(panelMain, BoxLayout.Y_AXIS));
+		frame.getContentPane().add(panelMain);
+		
+		// Exif text area
+		textExif.setLineWrap(false);
+		textExif.setWrapStyleWord(false);
+		textExif.setEnabled(false); // no editing allowed
+		scrollExif.setWheelScrollingEnabled(true);
+		scrollExif.getVerticalScrollBar().setUnitIncrement(textExif.getFontMetrics(textExif.getFont()).getHeight());
+		scrollExif.getHorizontalScrollBar().setUnitIncrement(textExif.getFontMetrics(textExif.getFont()).stringWidth("W"));
+		//scrollExif.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		panelExif.add(scrollExif, BorderLayout.CENTER);
+		
+		// Comment text area
+		textComment.setLineWrap(true);
+		textComment.setWrapStyleWord(true);
+		scrollComment.setWheelScrollingEnabled(true);
+		scrollComment.getVerticalScrollBar().setUnitIncrement(textComment.getFontMetrics(textComment.getFont()).getHeight());
+		scrollComment.getHorizontalScrollBar().setUnitIncrement(textComment.getFontMetrics(textComment.getFont()).stringWidth("W"));
+		scrollComment.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		panelBottom.add(scrollComment, BorderLayout.CENTER);
+		
+		// Toolbar
+		panelTop.add(panelToolbarMain, BorderLayout.NORTH);
+		
+		// Folder button
+		btnChooser.setToolTipText("Choose a folder to browse");
+		btnChooser.setIcon(new ImageIcon(getClass().getResource("/images/open.gif")));
+		btnChooser.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				chooseFolder();
+			}
+		});
+		panelToolbarMain.add(btnChooser);
+		
+		// Previous button
+		btnPrev.setToolTipText("View previous image");
+		btnPrev.setIcon(new ImageIcon(getClass().getResource("/images/previous.gif")));
+		btnPrev.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				getPreviousImage();
+			}
+		});
+		panelToolbarMain.add(btnPrev);
+		
+		// Next button
+		btnNext.setToolTipText("View next image");
+		btnNext.setIcon(new ImageIcon(getClass().getResource("/images/next.gif")));
+		btnNext.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				getNextImage();
+			}
+		});
+		panelToolbarMain.add(btnNext);
+		
+		// Get EXIF button
+		btnExif.setToolTipText("Append EXIF data to comment");
+		btnExif.setIcon(new ImageIcon(getClass().getResource("/images/appendexif.gif")));
+		btnExif.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				copyExifToComment();
+			}
+		});
+		panelToolbarMain.add(btnExif);
+		
+		// Create split panes
+		splitComment = new JSplitPane(JSplitPane.VERTICAL_SPLIT, panelTop, panelBottom);
+		splitComment.setOneTouchExpandable(false);
+		splitComment.setContinuousLayout(true);
+		splitImageExif = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panelImage, panelExif);
+		splitImageExif.setOneTouchExpandable(true);
+		splitImageExif.setContinuousLayout(true);
+		
+		// Image panel
+		panelImageInfo.add(splitImageExif, BorderLayout.CENTER);
+		panelImageInfo.add(labelFilename, BorderLayout.NORTH);
+		labelFilename.setBorder(BorderFactory.createEtchedBorder());
+		
+		// Image/exif panels
+		panelTop.add(panelImageInfo, BorderLayout.CENTER);
+		
+		// Add panels
+		panelMain.add(splitComment, BorderLayout.CENTER);
+		
+		// Validate
+		panelMain.validate();
+		
+		// Add window listener to trap closing event
+		frame.addWindowListener(new WindowListener() {
+			public void windowClosing(WindowEvent e) {
+				saveIni();
+				System.exit(0);
+			}
+			public void windowClosed(WindowEvent e) {}
+			public void windowOpened(WindowEvent e) {}
+			public void windowIconified(WindowEvent e) {}
+			public void windowDeiconified(WindowEvent e) {}
+			public void windowActivated(WindowEvent e) {}
+			public void windowDeactivated(WindowEvent e) {}
+		});
+		
+		// Load window position
+		try {
+			int x = Integer.parseInt(prop.getProperty("WindowX"));
+			int y = Integer.parseInt(prop.getProperty("WindowY"));
+			int w = Integer.parseInt(prop.getProperty("WindowW"));
+			int h = Integer.parseInt(prop.getProperty("WindowH"));
+			frame.setBounds(x, y, w, h);
+		} catch (NumberFormatException ex) {
+			frame.setBounds(0, 0, 600, 450);
+		}
+		
+		// Load divider location
+		try {
+			int p1 = Integer.parseInt(prop.getProperty("Split1"));
+			int p2 = Integer.parseInt(prop.getProperty("Split2"));
+			splitImageExif.setDividerLocation(p1);
+			splitComment.setDividerLocation(p2);
+		} catch (NumberFormatException ex) {
+			splitImageExif.setDividerLocation(400);
+			splitComment.setDividerLocation(300);
+		}
+		
+		// Make frame visible
+		frame.setVisible(true);
+		
+		// Open images in last folder opened
+		showFirstImage();
+	}
+	
+	// choose a folder
+	private void chooseFolder() {
+		// folder chooser
+		JFileChooser fc;
+		if (images != null && images.length > 0) {
+			fc = new JFileChooser(images[imageIndex]);
+		} else {
+			if (prop.getProperty("LastFolder") != null) {
+				fc = new JFileChooser(prop.getProperty("LastFolder"));
+			} else {
+				fc = new JFileChooser();
+			}
+		}
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		
+		if (fc.showOpenDialog(panelMain) == JFileChooser.APPROVE_OPTION) {
+			// save last folder
+			prop.setProperty("LastFolder", fc.getSelectedFile().getAbsolutePath());
+			
+			// get images and show first one
+			showFirstImage();
+		}
+	}
+	
+	// get images and show first one
+	private void showFirstImage() {
+		if (prop.getProperty("LastFolder") == null) { return; }
+		getImages(prop.getProperty("LastFolder"));
+		if (images == null || images.length <= 0) { return; }
+		imageIndex = 0;
+		showImage(Toolkit.getDefaultToolkit().getImage(images[imageIndex].getAbsolutePath()));
+		loadImages(MODE_BOTH);
+	}
+	
+	// show the image at the current index
+	private void showImage(Image img) {
+		if (images != null && images.length > 0) {
+			panelImage.setImage(img);
+			panelImage.repaint();
+			loadText();
+		}
+	}
+	
+	private void getPreviousImage() {
+		if (images == null || images.length <= 0) { return; }
+		
+		// update text
+		saveText();
+		clearText();
+		
+		// update image pointer
+		imageIndex -= 1;
+		if (imageIndex < 0) { imageIndex = images.length-1; }
+		
+		if (panelImage.getImage() != null) {
+			nextImage = panelImage.getImage();
+		}
+		
+		// show next image
+		showImage(prevImage);
+		
+		// update cache
+		loadImages(MODE_PREV);
+	}
+	
+	private void getNextImage() {
+		if (images == null || images.length <= 0) { return; }
+		
+		// update text
+		saveText();
+		clearText();
+		
+		// update image pointer
+		imageIndex += 1;
+		if (imageIndex > images.length-1) { imageIndex = 0; }
+		
+		if (panelImage.getImage() != null) {
+			prevImage = panelImage.getImage();
+		}
+		
+		// show next image
+		showImage(nextImage);
+		
+		// update cache
+		loadImages(MODE_NEXT);
+	}
+	
+	private void loadImages(int mode) {
+		if (images != null && images.length > 0) {
+			if (mode == MODE_BOTH || mode == MODE_NEXT) {
+				int next = imageIndex+1;
+				if (next > images.length-1) { next = 0; }
+				nextImage = Toolkit.getDefaultToolkit().getImage(images[next].getAbsolutePath());
+			}
+			
+			if (mode == MODE_BOTH || mode == MODE_PREV) {
+				int prev = imageIndex-1;
+				if (prev < 0) { prev = images.length-1; }
+				prevImage = Toolkit.getDefaultToolkit().getImage(images[prev].getAbsolutePath());
+			}
+		}
+	}
+	
+	private String getTextFileName() {
+		// *****************************************************************
+		// *****************************************************************
+		// Make SURE this is ALWAYS the text file filename because it is
+		// potentially DELETED if the DeleteEmpty option is turned on!
+		String filename = images[imageIndex].getAbsolutePath().toString();
+		int dot = filename.lastIndexOf('.');
+		if (dot > -1) {
+			filename = filename.substring(0, dot);
+		}
+		return(filename + ".txt");
+		// *****************************************************************
+		// *****************************************************************
+	}
+	
+	// Loads the txt file associated with the image and displays the text
+	// in the textArea box.
+	public void loadText() {
+		File f = new File(getTextFileName());
+		
+		// Get comment
+		try {
+			StringBuffer sb = new StringBuffer();
+			if (f.canRead()) {
+				String line;
+				BufferedReader br = new BufferedReader(new FileReader(f));
+				while ((line = br.readLine()) != null) {
+					sb.append(line);
+					sb.append(System.getProperty("line.separator"));
+				}
+			}
+			textComment.setText(sb.toString());
+			
+			// Move caret to top and get focus
+			textComment.setCaretPosition(0);
+			textComment.grabFocus();
+		} catch (java.io.IOException ex) {
+		}
+		
+		// Get exif
+		textExif.setText(getExifData());
+		
+		// Move caret to top and get focus
+		textExif.setCaretPosition(0);
+		
+		// Update filename and path
+		String path = images[imageIndex].getAbsolutePath();
+		if (path.length() > 60) {
+			// find closest File.separator
+			int p = path.indexOf(File.separator, path.length()-60);
+			if (p < 0) { p = 0; }
+			path = "..." + path.substring(p, path.length());
+		}
+		labelFilename.setText("File: " + path);
+	}
+	
+	// Clear the text areas
+	public void clearText() {
+		textComment.setText("");
+		textExif.setText("");
+		labelFilename.setText("");
+	}
+	
+	// Save text of the current picture to <picture name>.txt
+	public void saveText() {
+		// *****************************************************************
+		// *****************************************************************
+		// Make SURE this is ALWAYS the text file filename because it is
+		// potentially DELETED if the DeleteEmpty option is turned on!
+		File f = new File(getTextFileName());
+		// *****************************************************************
+		// *****************************************************************
+		
+		// Don't create txt files if the DeleteEmpty option is on and there is no comment
+		if (prop.getProperty("DeleteEmpty").equalsIgnoreCase("1") && textComment.getText().length() <= 0) {
+			// *****************************************************************
+			// *****************************************************************
+			if (f.exists()) { f.delete(); }
+			// *****************************************************************
+			// *****************************************************************
+			return;
+		}
+		
+		// Save comment
+		try {
+			f.createNewFile();
+			if (f.canWrite()) {
+				FileWriter fw = new FileWriter(f);
+				fw.write(textComment.getText());
+				fw.flush();
+				fw.close();
+			}
+		} catch (java.io.IOException ex) {
+		}
+	}
+	
+	private void copyExifToComment() {
+		if (images == null || images.length <= 0) { return; }
+		
+		StringBuffer sb = new StringBuffer();
+		
+		// get current text
+		sb.append(textComment.getText());
+		sb.append(System.getProperty("line.separator"));
+		
+		// get exif
+		sb.append(getExifData());
+		
+		// set text
+		textComment.setText(sb.toString());
+	}
+	
+	private String getExifData() {
+		if (images == null || images.length <= 0) { return(""); }
+		try {
+			StringBuffer sb = new StringBuffer();
+			Metadata metadata = JpegMetadataReader.readMetadata(images[imageIndex]);
+			
+			// iterate through metadata directories
+			Iterator directories = metadata.getDirectoryIterator();
+			while (directories.hasNext()) {
+				Directory directory = (Directory)directories.next();
+				
+				// iterate through tags
+				Iterator tags = directory.getTagIterator();
+				while (tags.hasNext()) {
+					Tag tag = (Tag)tags.next();
+					
+					// append each tag to stringbuffer
+					sb.append(tag.toString());
+					sb.append(System.getProperty("line.separator"));
+				}
+			}
+			
+			// return text
+			return(sb.toString());
+		} catch (java.io.FileNotFoundException ex) {
+			return("");
+		} catch (com.drew.imaging.jpeg.JpegProcessingException ex) {
+			return("");
+		}
+	}
+	
+	// get images
+	public void getImages(String folder) {
+		File f = new File(folder);
+		images = f.listFiles(new FileFilter() {
+			public boolean accept(File f) {
+				if (f != null) {
+					if (f.getAbsolutePath().endsWith(".jpg")) {
+						return(true);
+					}
+					if (f.getAbsolutePath().endsWith(".JPG")) {
+						return(true);
+					}
+					if (f.getAbsolutePath().endsWith(".gif")) {
+						return(true);
+					}
+					if (f.getAbsolutePath().endsWith(".GIF")) {
+						return(true);
+					}
+				}
+				return(false);
+			}
+		});
+	}
+	
+	private void loadIni() {
+		try {
+			File f = new File(INI_FILE);
+			if (f.exists()) {
+				prop.load(new FileInputStream(INI_FILE));
+			} else {
+				f.createNewFile();
+			}
+			
+			// Defaults
+			if (prop.getProperty("DeleteEmpty") == null) {
+				prop.setProperty("DeleteEmpty", "1");
+			}
+		} catch (FileNotFoundException ex) {
+		} catch (IOException ex) {
+		}
+	}
+	
+	private void saveIni() {
+		try {
+			// Set all ini settings
+			
+			// Window size and position
+			Rectangle r = frame.getBounds();
+			prop.setProperty("WindowX", (new Integer(r.x)).toString());
+			prop.setProperty("WindowY", (new Integer(r.y)).toString());
+			prop.setProperty("WindowW", (new Integer(r.width)).toString());
+			prop.setProperty("WindowH", (new Integer(r.height)).toString());
+			
+			// Splitter positions
+			prop.setProperty("Split1", (new Integer(splitImageExif.getDividerLocation())).toString());
+			prop.setProperty("Split2", (new Integer(splitComment.getDividerLocation())).toString());
+			
+			// Save settings
+			prop.store(new FileOutputStream(INI_FILE), "JCap settings");
+		} catch (FileNotFoundException ex) {
+		} catch (IOException ex) {
+		}
+	}
+	
+	// main
+	public static void main(String[] args) {
+		JCap application = new JCap();
+	}
+}
+
