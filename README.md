@@ -17,10 +17,10 @@ Danach kann man im search Dialog (über dem Verzeichnis stehen!) nach den Schalg
 
 Damit man in dem Portal dann anhand der Bild-Dateien zB weiß, welche Bilder 2x gemacht werden sollten, kann man die Dateinamen in den Zielverzeichnissen mit dem Database Manipulation Dialog alle Dateien miteinander umbenennen zB in 2022-01-07 2x meine Familienbilder 16-07-58.jpg.
 Eigentlich hatte die den DIalog für einen Freund konzipiert, der nach einem Zeltlager verschiedene Kameras mit verschiedenen (auch falsch eingestellten) Datums und Uhrzeiten in einen chronologischen Ablauf bringen wollte. Also das geht auch damit.
-
-Weiterhin kann man Stories in das große Feld Description schreiben, Zeiletrenner ist hier zB das "doppelte Leerzeichen", die danach wie in einem Film auf die Bilder projiziert werden (und zeitlich hintereinander umgebrochen werden an den doppelten Leerzeichen), um diese zB bei einer Party ablaufen zu lassen mit Hintergrundinfos in den Texten: "Hier lacht der Opa über die ersten Laute von Mia..."
 Die Daten für die Zielverzeichnis-Dateien werden aus den exif-Daten der Bilder extrahiert (nicht aus den source Dateinamen).
 
-Weil das Presenter-Programm diashow nicht alle Klassen benötigt (und auch keine Oberfläche besitzt), habe ich diese Klassen in dem 2. Ordner diashow zusammengefasst als zweites unabhängig vom kaba lauffähiges Programm (viele Klassen sind aber ähnlich). Mann kann die Bilder sowohl mit den Klassen in ein jar packen (in das Verzeichnis images) wenn man es als eine Datei über das Internet versenden will oder das diashow Programm (ohne Bilder drin) in dem Bilderverzeichnis starten und dann nimmt es alle Bilder, die es vorfindet.
+Weiterhin kann man Stories in das große Feld Description schreiben, mehrere Zeilen kann man durch ein "doppelte Leerzeichen" im Text erzeugen, die danach wie in einem Film auf die Bilder projiziert werden (und zeitlich hintereinander dargestellt werden getrennt an den doppelten Leerzeichen), um diese zB bei einer Party ablaufen zu lassen mit Hintergrundinfos in den Texten: "Hier lacht der Opa über die ersten Laute von Mia..."
+
+Weil das Presenter-Programm diashow nicht alle Klassen benötigt (und auch keine Oberfläche besitzt), habe ich diese Klassen in dem 2. Ordner diashow zusammengefasst als zweites unabhängig vom kaba lauffähiges Programm (viele Klassen sind aber ähnlich). Mann kann die Bilder sowohl mit den Klassen in ein jar packen (in das Verzeichnis images) wenn man es als eine Datei über das Internet versenden will oder das diashow Programm (ohne Bilder drin) in dem Bilderverzeichnis starten und dann nimmt es alle Bilder, die es vorfindet. Probiert es auch, nach Runterladen des Projektes einfach im image Verzeichnis das jar starten.
 
 Viel Spass damit!!
