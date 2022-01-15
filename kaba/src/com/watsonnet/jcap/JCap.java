@@ -1,23 +1,80 @@
 package com.watsonnet.jcap;
 
 // java:
-import java.awt.*;
-import java.awt.dnd.*;
-import java.awt.datatransfer.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.LayoutManager;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Properties;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 // swing:
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
 
+import com.drew.imaging.jpeg.JpegMetadataReader;
+import com.drew.metadata.Directory;
 // exif
-import com.drew.metadata.*;
-import com.drew.imaging.jpeg.*;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
 
 /* 
  *	 IDEAS:
  *	- TODO Serienbilder 100b6650.jpg anders einzuordnen - in dias bereits erledigt?
+ *		mit der Manipulation Funktion werden sie aber eh zeitlich geordnet.
 - Laden von Bildern im Hintergrund bei Listenanzeige (viell. mit Cursor o. andere -Anim.)
 - Präs.modus Vollbild mit Texten und möglicher Positionierung dieser, z:b. in description
 	#20 230 200 260 zu Beginn 
@@ -30,7 +87,7 @@ import com.drew.imaging.jpeg.*;
 
 public class JCap extends JFrame implements ActionListener, DropTargetListener {
 	public static final String APP_TITLE = "KaBa";
-	public static final String APP_VERSION = " 2.0.8";
+	public static final String APP_VERSION = " 2.0.9";
 	
 	private String iniFilename ="";
 	private static final String INI_FILE = "kaba.ini";
@@ -53,6 +110,8 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 		
 	private AchimsManipulationsPanel manipulations01Panel = null;
 	public boolean manipulations01PanelVisible = false;
+	private DanisManipulationsPanel manipulations02Panel = null;
+	public boolean manipulations02PanelVisible = false;
 		
 	
 	// Help panel
@@ -86,6 +145,8 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 	ImagePanel panelImage = new ImagePanel();
 	ImagePanelWithBuffering panelBufferedImage = new ImagePanelWithBuffering();
 	JLabel labelFilename = new JLabel();
+	JLabel maxNumber = new JLabel();
+	JTextField inputNumber = new JTextField(4);
 	JTextField textPath = new JTextField();
 	
 	JPanel panelText = new JPanel(new BorderLayout());
@@ -149,6 +210,16 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 			}
 		});
 		
+		inputNumber.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				try {
+					getImageByAddress(Integer.parseInt(inputNumber.getText()) - 1);
+				} catch (NumberFormatException ex) {
+					getImageByAddress(0);
+				}
+			}
+		});
+
 		textDescription.setLineWrap(true);
 		textDescription.setWrapStyleWord(true);
 		textDescription.setFont(Font.getFont("SansSerif"));
@@ -203,16 +274,16 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 		// Image menu
 		menuBar.add(makeJMenu("Image", KeyEvent.VK_I, 
 			imageMenuTitles = new String[] {"view 10 images Up", "view Previous image", "view Next image", "view 10 images Down", 
-				"view next image without Keywords", 
-				"---",  "view First image", "view Last image", "view image by Address",
+				"view next image without Keywords", "view next image with Keywords", "view previous image with Keywords", 
+				"---",  "view First image", "view Last image",
 				"---",  "show image full siZe", "append EXIF data to comment", "update folder Information"}, 
-			new int[] {KeyEvent.VK_U, KeyEvent.VK_P, KeyEvent.VK_N, KeyEvent.VK_D, KeyEvent.VK_K, 
-				0, KeyEvent.VK_F, KeyEvent.VK_L, KeyEvent.VK_A,
+			new int[] {KeyEvent.VK_U, KeyEvent.VK_P, KeyEvent.VK_N, KeyEvent.VK_D, 
+					KeyEvent.VK_O, KeyEvent.VK_T, KeyEvent.VK_H, 
+				0, KeyEvent.VK_F, KeyEvent.VK_L,
 				0, KeyEvent.VK_Z, KeyEvent.VK_X, KeyEvent.VK_I},
-			new int[] {KeyEvent.VK_PAGE_UP, KeyEvent.VK_PAGE_UP, KeyEvent.VK_PAGE_DOWN, KeyEvent.VK_PAGE_DOWN, 0, 
-				0, KeyEvent.VK_HOME, KeyEvent.VK_END, 0,
-				0, KeyEvent.VK_Z, 0, 0}, 
-			new int[] {ActionEvent.SHIFT_MASK, 0, 0, ActionEvent.SHIFT_MASK, 0, 0, 0, 0, 0, 0, ActionEvent.CTRL_MASK, 0, 0}, 
+			new int[] {KeyEvent.VK_PAGE_UP, KeyEvent.VK_PAGE_UP, KeyEvent.VK_PAGE_DOWN, KeyEvent.VK_PAGE_DOWN, 0, 0, 0, 
+				0, 0, 0, 0, KeyEvent.VK_Z, 0, 0}, 
+			new int[] {ActionEvent.SHIFT_MASK, 0, 0, ActionEvent.SHIFT_MASK, 0, 0, 0, 0, 0, 0, 0, ActionEvent.CTRL_MASK, 0, 0}, 
 			this));
 		
 		// Search menu
@@ -227,12 +298,12 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 		if (showDatabaseChangesMenu){
 			JMenu jmn;
 			menuBar.add(jmn=makeJMenu("Database Manipulations", KeyEvent.VK_D, 
-				databaseMenuTitles = new String[] {"rename Jpeg-files for Achim..."}, 
-				new int[] {KeyEvent.VK_A},
-				new int[] {0}, 
-				new int[] {0}, 
-				this));
-			jmn.setToolTipText ("HANDLE WITH CARE AND TEST BEFORE ACTION!!!");
+					databaseMenuTitles = new String[] {"rename Jpeg-files for Achim...", "rename Jpeg-files for Dani..."}, 
+					new int[] {KeyEvent.VK_A, KeyEvent.VK_D},
+					new int[] {0, 0}, 
+					new int[] {0, 0}, 
+					this));
+				jmn.setToolTipText ("HANDLE WITH CARE AND TEST it BEFORE ACTION!!!");
 
 			/*			war mal erster Eintrag im Databases-Menu	
 
@@ -370,8 +441,12 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 		// Image panel
 		//panelImage.setBorder(BorderFactory.createEtchedBorder());
 		panelImageInfo.add(splitImageExif, BorderLayout.CENTER);
+		JPanel panelID = new JPanel();
 		JPanel panelPath = new JPanel(new BorderLayout());
-		panelPath.add(labelFilename, BorderLayout.WEST);
+		panelID.add(labelFilename);
+		panelID.add(inputNumber);
+		panelID.add(maxNumber);
+		panelPath.add(panelID, BorderLayout.WEST);
 		panelPath.add(textPath, BorderLayout.CENTER);
 		panelImageInfo.add(panelPath, BorderLayout.NORTH);
 		labelFilename.setBorder(BorderFactory.createEtchedBorder());
@@ -461,16 +536,18 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 		else if (cmd.equals(imageMenuTitles[2])) getImageByIncrement(1, true, true);
 		else if (cmd.equals(imageMenuTitles[3])) getImageByIncrement(10, false, false);
 		else if (cmd.equals(imageMenuTitles[4])) getNextImageWithNoKeyword();
-		else if (cmd.equals(imageMenuTitles[6])) getImageByAddress(0);
-		else if (cmd.equals(imageMenuTitles[7])) getImageByAddress(10000); // TODO zu korr. bei Gelegenheit
-		else if (cmd.equals(imageMenuTitles[8])) getImageByAddress(0); // TODO zu impl.
-		else if (cmd.equals(imageMenuTitles[10])) showFullSize(imageIndex);
-		else if (cmd.equals(imageMenuTitles[11])) copyExifToComment(imageIndex);
-		else if (cmd.equals(imageMenuTitles[12])) updateFolderInfo();
+		else if (cmd.equals(imageMenuTitles[5])) getNextImageWithKeyword();
+		else if (cmd.equals(imageMenuTitles[6])) getPrevImageWithKeyword();
+		else if (cmd.equals(imageMenuTitles[8])) getImageByAddress(0);
+		else if (cmd.equals(imageMenuTitles[9])) getImageByAddress(10000); // TODO zu korr. bei Gelegenheit
+		else if (cmd.equals(imageMenuTitles[11])) showFullSize(imageIndex);
+		else if (cmd.equals(imageMenuTitles[12])) copyExifToComment(imageIndex);
+		else if (cmd.equals(imageMenuTitles[13])) updateFolderInfo();
 
 		else if (cmd.equals(searchMenuTitles[0])) showSearchDialog();
 
-		else if (cmd.equals(databaseMenuTitles[0])) renameAllJPEGFiles();
+		else if (cmd.equals(databaseMenuTitles[0])) renameAllJPEGFiles1();
+		else if (cmd.equals(databaseMenuTitles[1])) renameAllJPEGFiles2();
 
 		else if (cmd.equals(helpMenuTitles[0])) showCameraInfos();
 		else if (cmd.equals(helpMenuTitles[1])) showHelpDialog();
@@ -493,7 +570,7 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 			searchPanelVisible = true;
 		} else {
 			searchPanel.textKeywords.requestFocus();
-			searchPanel.show();
+			searchPanel.setVisible(true);
 			searchPanel.setState(Frame.NORMAL); // stelle wieder her, wenn iconified
 		}
 	}
@@ -512,7 +589,7 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 			// So we only create one search panel.
 			manipulationsPanelVisible = true;
 		} else {
-			manipulationsPanel.show();
+			manipulationsPanel.setVisible(true);
 			manipulationsPanel.setState(Frame.NORMAL); // stelle wieder her, wenn iconified
 		}
 					
@@ -520,7 +597,7 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 
 	/** rename the JPEGs im ManipulationsPanel- 
 	 * 	genutzt für *.jpg --> date_in_jpg.jpg*/
-	protected void renameAllJPEGFiles() {
+	protected void renameAllJPEGFiles1() {
 		if (!manipulations01PanelVisible) {
 			manipulations01Panel = null;
 			manipulations01Panel = new AchimsManipulationsPanel();
@@ -531,10 +608,29 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 			// So we only create one search panel.
 			manipulations01PanelVisible = true;
 		} else {
-			manipulations01Panel.show();
+			manipulations01Panel.setVisible(true);
 			manipulations01Panel.setState(Frame.NORMAL); // stelle wieder her, wenn iconified
 		}
 		manipulations01Panel.testOnly.setSelected(true);			
+	}
+
+	/** rename the JPEGs im ManipulationsPanel- 
+	 * 	genutzt für *.jpg --> date_in_jpg.jpg*/
+	protected void renameAllJPEGFiles2() {
+		if (!manipulations02PanelVisible) {
+			manipulations02Panel = null;
+			manipulations02Panel = new DanisManipulationsPanel();
+			manipulations02Panel.parent = this;
+			manipulations02Panel.setBounds(getBounds().x + getBounds().width/5, getBounds().y + getBounds().height/5, getBounds().width*3/5, getBounds().height*3/5);
+			manipulations02Panel.validate();
+			
+			// So we only create one search panel.
+			manipulations02PanelVisible = true;
+		} else {
+			manipulations02Panel.setVisible(true);
+			manipulations02Panel.setState(Frame.NORMAL); // stelle wieder her, wenn iconified
+		}
+		manipulations02Panel.testOnly.setSelected(true);			
 	}
 
 	// Help
@@ -549,7 +645,7 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 			// So we only create one search panel.
 			camInfoPanelVisible = true;
 		} else {
-			camInfos.show();
+			camInfos.setVisible(true);
 			camInfos.setState(Frame.NORMAL); // stelle wieder her, wenn iconified
 		}
 					
@@ -565,7 +661,7 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 			// So we only create one search panel.
 			helpPanelVisible = true;
 		} else {
-			helpPanel.show();
+			helpPanel.setVisible(true);
 			helpPanel.setState(Frame.NORMAL); // stelle wieder her, wenn iconified
 		}
 					
@@ -576,7 +672,7 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 		Point start = new Point (getBounds().x + getBounds().width/4, getBounds().y + getBounds().height/4);
 		Rectangle r = new Rectangle (start, infoPanel.getPreferredSize());
 		infoPanel.setBounds(r);
-		infoPanel.show();
+		infoPanel.setVisible(true);
 	}
 	
 	// on start of application: get images and show first
@@ -723,7 +819,7 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 		int start = imageIndex;
 		boolean found = false;
 		while (true) {
-			File f = new File(getCaptionFileName(i));
+			File f = new File(getKeywordsFileName(i));
 			if (!f.exists() || f.length() <= 0) {
 				imageIndex = i;
 				found = true;
@@ -743,6 +839,72 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 		}
 	}
 	
+	// show the next image with keywords
+	protected void getNextImageWithKeyword() {
+		if (images == null || images.length <= 0) { return; }
+		
+		// update text
+		saveText(imageIndex);
+		
+		// find next image with comments
+		int i = imageIndex+1;
+		if (i > images.length-1) { i = 0; }
+		int start = imageIndex;
+		boolean found = false;
+		while (true) {
+			File f = new File(getKeywordsFileName(i));
+			if ((f.exists()) && (f.length() > 0)) {
+				imageIndex = i;
+				found = true;
+				break;
+			}
+			if (i == start) { break; }
+			i += 1;
+			if (i > images.length-1) { i = 0; }
+		}
+		
+		if (found) {
+			// show image
+			showImage(Toolkit.getDefaultToolkit().getImage(images[imageIndex].getAbsolutePath()));
+		} else {
+			// message box, everything is commented
+			JOptionPane.showConfirmDialog(this, "All images in this folder have no keywords.", "Not found", JOptionPane.OK_CANCEL_OPTION);
+		}
+	}
+	
+	// show the previous image with keywords
+	protected void getPrevImageWithKeyword() {
+		if (images == null || images.length <= 0) { return; }
+		
+		// update text
+		saveText(imageIndex);
+		
+		// find previous image with comments
+		int i = imageIndex-1;
+		if (i < 0) { i = images.length-1; }
+		int start = imageIndex;
+		boolean found = false;
+		while (true) {
+			File f = new File(getKeywordsFileName(i));
+			if ((f.exists()) && (f.length() > 0)) {
+				imageIndex = i;
+				found = true;
+				break;
+			}
+			if (i == start) { break; }
+			i -= 1;
+			if (i < 0) { i = images.length-1; }
+		}
+		
+		if (found) {
+			// show image
+			showImage(Toolkit.getDefaultToolkit().getImage(images[imageIndex].getAbsolutePath()));
+		} else {
+			// message box, everything is commented
+			JOptionPane.showConfirmDialog(this, "All images in this folder have no keywords.", "Not found", JOptionPane.OK_CANCEL_OPTION);
+		}
+	}
+	
 	// Apply current keywords to all images in this folder after confirmation
 	protected void applyKeywordsToAll() {
 		if (images == null || images.length <= 0) { return; }
@@ -757,11 +919,6 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 	}
 	
 	/** get the filename of the txt file associated with each image */
-	private String getTextFileName(int n) {
-		return(Util.getTextFilename(images[n].getAbsolutePath()));
-	}
-	
-	/** get the filename of the txt file associated with each image */
 	private String getKeywordsFileName(int n) {
 		return(Util.getKeywordsFilename(images[n].getAbsolutePath()));
 	}
@@ -769,6 +926,11 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 	/** get the filename of the txt file associated with each image */
 	private String getCaptionFileName(int n) {
 		return(Util.getCaptionFilename(images[n].getAbsolutePath()));
+	}
+	
+	/** get the filename of the txt file associated with each image */
+	private String getDescriptionFileName(int n) {
+		return(Util.getDescriptionFilename(images[n].getAbsolutePath()));
 	}
 	
 	/** Loads the txt file associated with the image and displays the text
@@ -783,7 +945,7 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 		// Get descriptions
 		inputKeywords.setText(Util.readFile(new File(getKeywordsFileName(n))));
 		inputCaption.setText(Util.readFile(new File(getCaptionFileName(n))));
-		textDescription.setText(Util.readFile(new File(getTextFileName(n))));
+		textDescription.setText(Util.readFile(new File(getDescriptionFileName(n))));
 		
 		// Move caret to top and get focus
 		if (focus) {
@@ -799,10 +961,13 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 		textPath.setCaretPosition(textPath.getText().length()-1);
 		
 		// File index and max number of images
-		String index = (new Integer(n+1)).toString() + "/" + (new Integer(images.length)).toString();
+		String max = ("von  " + Integer.toString(images.length));
 		
 		// Update label
-		labelFilename.setText(Util.getFilenameLabel(images[n].getName()) + " (" + index + ")");
+		//labelFilename.setText(Util.getFilenameLabel(images[n].getName()) + " (" + index + ")");
+		labelFilename.setText(Util.getFilenameLabel(images[n].getName()) + " -> ");
+		inputNumber.setText(Integer.toString(n+1));
+		maxNumber.setText(max);
 	}
 	
 	private void loadText(int n) {
@@ -831,9 +996,9 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 	
 	/** Save text of the current picture to <picture name>.txt */
 	public void saveText(int n) {
-		saveFile(new File(getTextFileName(n)), textDescription.getText());
-		saveFile(new File(getCaptionFileName(n)), inputCaption.getText());
 		saveFile(new File(getKeywordsFileName(n)), inputKeywords.getText());
+		saveFile(new File(getCaptionFileName(n)), inputCaption.getText());
+		saveFile(new File(getDescriptionFileName(n)), textDescription.getText());
 	}
 	
 	// appends the exif data to the comment textarea
