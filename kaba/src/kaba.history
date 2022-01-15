@@ -4,8 +4,21 @@
  * 	- Einbindung des JPEGPresenters für Diashows
  	- bei OutOfMemory ImagePanel ohne Buffering verwenden oder nur noch Fkt. ohne 
  		Vorb. next Image ansteuern
+ 	2.0.9 vom 09.01.22:
+ 		e neue Menupunkte im Imagestepmenu: nächste & vorige mit Schlagwort
+ 		o bei Handybildern Orientierung besser korrigieren
+ 	2.0.8 vom 02.06.21:
+		e bei DataManipulate sollte auch kürzere Daten und andere Reihenfolge möglich sein
+			zB mit optionalName=dateShortNameBehind oder dateLongNameBetween (old)
+			ein workaround erzeugt über DanisManipulationPanel
+		e Bildnummer als Eingabefeld für Direktsprung, damit entfällt der Menupunkt getImageByAddress
+	neue Fehler beseitigen
+		e Search Fenster wird ohne ini (init-Fehler) oben links zu klein dargestellt
+		e JPG bug beseitigt mit 2 Funktionen für small jpg und Caps JPG
 	2.0.8 vom xx.08.08:
 		- Bugfix: JPG anstatt jpg - bei finden okay beim copy noch todo
+			ab kaba 208 kann es erstmal leider nur JPG anstatt jpg - workaround für Danis Sony Kamera (und Ulis Kamera) solo!! umzustellen
+			umzustellen in Until.java getImageFilname()
 	    + erstes (Pos1) letztes (end) Bild zeigen
 		- impl. SearchPanel: searchOnlyKeyWords, searchAllTexts
 		+ bugfix im SearchPanel werden nun keywords wirklich angezeigt
@@ -13,7 +26,7 @@
 			zum groß machen
 	2.0.7 vom 17.08.08:
 		+ mit Kamera-InfoPanel
-		- TODO Serienbilder 100b6650.jpg anders einzuordnen
+		- TODO Serienbilder 100b6650.jpg anders einzuordnen, werden nach Manipulate eh anders eingeordnet?
 	2.0.6 vom 13.08.08:
 		+ bugfix UTF-8 als Text-Dateien-Format vorgeschrieben
  	2.0.5 vom 28.07.08
