@@ -274,16 +274,16 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 		// Image menu
 		menuBar.add(makeJMenu("Image", KeyEvent.VK_I, 
 			imageMenuTitles = new String[] {"view 10 images Up", "view Previous image", "view Next image", "view 10 images Down", 
-				"view next image without Keywords", "view next image with Keywords", "view previous image with Keywords", 
+				"view next image without Keywords", "view previous image with Keywords",  "view next image with Keywords",
 				"---",  "view First image", "view Last image",
 				"---",  "show image full siZe", "append EXIF data to comment", "update folder Information"}, 
 			new int[] {KeyEvent.VK_U, KeyEvent.VK_P, KeyEvent.VK_N, KeyEvent.VK_D, 
-					KeyEvent.VK_O, KeyEvent.VK_T, KeyEvent.VK_H, 
+					KeyEvent.VK_O, KeyEvent.VK_R, KeyEvent.VK_E, 
 				0, KeyEvent.VK_F, KeyEvent.VK_L,
 				0, KeyEvent.VK_Z, KeyEvent.VK_X, KeyEvent.VK_I},
-			new int[] {KeyEvent.VK_PAGE_UP, KeyEvent.VK_PAGE_UP, KeyEvent.VK_PAGE_DOWN, KeyEvent.VK_PAGE_DOWN, 0, 0, 0, 
+			new int[] {KeyEvent.VK_PAGE_UP, KeyEvent.VK_PAGE_UP, KeyEvent.VK_PAGE_DOWN, KeyEvent.VK_PAGE_DOWN, 0, KeyEvent.VK_PAGE_UP, KeyEvent.VK_PAGE_DOWN, 
 				0, 0, 0, 0, KeyEvent.VK_Z, 0, 0}, 
-			new int[] {ActionEvent.SHIFT_MASK, 0, 0, ActionEvent.SHIFT_MASK, 0, 0, 0, 0, 0, 0, 0, ActionEvent.CTRL_MASK, 0, 0}, 
+			new int[] {ActionEvent.SHIFT_MASK, 0, 0, ActionEvent.SHIFT_MASK, 0, ActionEvent.CTRL_MASK, ActionEvent.CTRL_MASK, 0, 0, 0, 0, ActionEvent.CTRL_MASK, 0, 0}, 
 			this));
 		
 		// Search menu
@@ -536,8 +536,8 @@ public class JCap extends JFrame implements ActionListener, DropTargetListener {
 		else if (cmd.equals(imageMenuTitles[2])) getImageByIncrement(1, true, true);
 		else if (cmd.equals(imageMenuTitles[3])) getImageByIncrement(10, false, false);
 		else if (cmd.equals(imageMenuTitles[4])) getNextImageWithNoKeyword();
-		else if (cmd.equals(imageMenuTitles[5])) getNextImageWithKeyword();
-		else if (cmd.equals(imageMenuTitles[6])) getPrevImageWithKeyword();
+		else if (cmd.equals(imageMenuTitles[5])) getPrevImageWithKeyword();
+		else if (cmd.equals(imageMenuTitles[6])) getNextImageWithKeyword();
 		else if (cmd.equals(imageMenuTitles[8])) getImageByAddress(0);
 		else if (cmd.equals(imageMenuTitles[9])) getImageByAddress(10000); // TODO zu korr. bei Gelegenheit
 		else if (cmd.equals(imageMenuTitles[11])) showFullSize(imageIndex);
