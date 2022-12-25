@@ -11,7 +11,7 @@ Zuerst kann man die Bilder beim gemeinsamen Betrachten verschlagworten z.B. mit 
   
 ![Bildschirmfoto vom 2022-01-07 22-05-57](https://user-images.githubusercontent.com/56628625/148613088-15ddd0a7-30a0-4950-a18c-8439361a36c3.png)
 
-Danach kann man im **search** Dialog (man muss über dem Verzeichnis stehen!) nach den Schlagworten (hier z.B. 2) suchen und die gefundenen Bilder in ein neues Verzeichnis kopieren (Button im Bild), zB nach "nachmachen/2x/". Das macht man dann mit allen Schlagworten 1 & 3 weiter - könnte auch noch ein bisschen leichter gemacht werden in kommenden Versionen, in dem er die manuellen Tätigkeiten für 1-x-fach je nach Vorkommen selbst erledigt.
+Danach kann man im **search** Dialog (man muss irgendwo oberhalb des Verzeichnisses stehen!) nach den Schlagworten (hier z.B. 2) suchen und die gefundenen Bilder in ein neues Verzeichnis kopieren (Button im Bild), zB nach "nachmachen/2x/". Das macht man dann mit allen Schlagworten 1 & 3 weiter - könnte auch noch ein bisschen leichter gemacht werden in kommenden Versionen, in dem er die manuellen Tätigkeiten für 1-x-fach je nach Vorkommen selbst erledigt.
 
 ![Bildschirmfoto vom 2022-01-07 22-06-39](https://user-images.githubusercontent.com/56628625/148613323-53e6d57a-1105-44ef-9600-177ae4844776.png)
 
