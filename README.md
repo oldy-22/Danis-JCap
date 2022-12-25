@@ -2,7 +2,7 @@
 Bilder taggen und suchen, Dateienamen editieren, Stories zu Bildern schreiben und diese als Film (in der Loop zB) ablaufen lassen
 
 
-Das Projekt ist entstanden aus dem Sourcefourge Projekt JCap (ich meine in einer Version 0.7.6 - war mal auf sourceforge damals). Ich habe es ca. 2003 runtergeladen und danach editiert nach meinen Belangen. Lange Zeit nutze ich das Tool schon und ändere immer das, was mir gerade nicht passt. Ich habe es kaba genannt, weil ich es nutze als "**KA**tegrisierbares **B**ilder**A**rchiv". Ich kenne kein Tool, das **mir** so schnell z.B. erlaubt, Bilder so zu bearbeiten, dass man sie an Ausdruckportale (z.B. aldifotos...) hochladen kann - zum Verteilen an weit entfernte Verwandte. An diesem Beispiel möchte ich den Ablauf hier erklären:
+Das Projekt ist entstanden aus dem Sourcefourge Projekt JCap (ich meine in einer Version 0.7.6 - war mal auf sourceforge damals). Ich habe es ca. 2003 runtergeladen und danach editiert nach meinen Belangen. Lange Zeit nutze ich das Tool schon und ändere immer das, was mir gerade nicht passt. Ich habe es kaba genannt, weil ich es nutze als "**KA**tegorisierbares **B**ilder**A**rchiv". Ich kenne kein Tool, das **mir** so schnell z.B. erlaubt, Bilder so zu bearbeiten, dass man sie an Ausdruckportale (z.B. aldifotos...) hochladen kann - zum Verteilen an weit entfernte Verwandte. An diesem Beispiel möchte ich den Ablauf hier erklären:
 
 ![Bildschirmfoto vom 2022-01-07 22-04-53](https://user-images.githubusercontent.com/56628625/148612770-92f349b0-ce67-4343-ad86-91e1e5b0ec5a.png)
 
