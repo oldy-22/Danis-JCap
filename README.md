@@ -21,7 +21,7 @@ Die Daten für die Zielverzeichnis-Dateien werden aus den exif-Daten der Bilder 
 
 Weiterhin kann man Stories in das große Feld **Description** schreiben, mehrere Zeilen Länge (für mehr Infos) kann man durch ein "doppelte Leerzeichen" im Text erzeugen, die danach wie in einem Film auf die Bilder projiziert werden (und zeitlich hintereinander dargestellt werden getrennt an den doppelten Leerzeichen), um diese zB bei einer Party ablaufen zu lassen mit Hintergrundinfos in den Texten: "Hier lacht der Opa über die ersten Laute von Mia..."
 Die *caption* (Überschrift) wird oben links im BIld positioniert und die "description" unten dann ähnlich einem Lauftext. Echtzeitverhalten und die Positionen für die Texte sind durch die Quellen dann gut anpassbar, wenn was nicht stimmt.
-Die diashow Quelltexte könnte man vielleicht auch für objektorientierte Programmierung als Beispiele hernehmen, weil es entstanden ist nach den Änderungen am JCap selber (also sozusagen auf einer Hochzeit von mir ca. 2008 ). Das gilt für das aus JCap abgeleitete kaba aber eher nicht unbedingt... 😄
+Die diashow Quelltexte könnte man vielleicht auch für objektorientierte Programmierung als Beispiele hernehmen, weil es entstanden ist nach den Änderungen am JCap selber (also sozusagen während meiner Hoch-zeit ca. 2008 ). Das gilt für das aus JCap abgeleitete kaba aber eher nicht unbedingt... 😄
 
 ![grafik](https://user-images.githubusercontent.com/56628625/199601995-40bf330c-3d53-4b1a-b1eb-e6fb0fe15ca2.png)
 
